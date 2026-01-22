@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-adsense-account" content="ca-pub-8711960145575991">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <link rel="icon" type="image" href="image/image 1.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .url-input-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .url-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            perspective: 1000px;
+        }
+
+        .video-card {
+            position: relative;
+            height: 200px;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .video-card:hover {
+            transform: rotateY(10deg) rotateX(-10deg) translateZ(50px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .video-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .video-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-card:hover .video-overlay {
+            opacity: 1;
+        }
+
+        .video-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 450px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .video-card {
+                height: 150px;
+            }
+        }
+          .footer {
+            background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 3px;
+            animation: pulse 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Fan Video Player </h1>
+            <p>Paste, Share, and Preview Videos in Fan Max Preview!</p>
+        </header>
+
+        <section class="url-input-section">
+            <div class="input-group">
+                <input type="url" class="url-input" id="videoUrl" placeholder="Paste video URL here to watch...">
+                <button class="btn" onclick="addVideo()">Add Video</button>
+            </div>
+        </section>
+
+        <main class="video-grid" id="videoGrid">
+            <!-- Sample videos -->
+            <div class="video-card" onclick="previewVideo('https://www.atnbangla.tv/live-tv')">
+                <img src="image/tv.jpg" alt="ATN Bangla Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch ATN Bangla Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.atnbangla.tv/live-tv')">Preview</button>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card" onclick="previewVideo('https://livetv.sx/enx/')">
+                <img src="image/tv.jpg" alt="All Sports Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch World Sports Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://livetv.sx/enx/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card" onclick="previewVideo('https://livetv.sx/enx/video/')">
+                <img src="image/tv.jpg" alt="All Sports Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Recorded Sports Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://livetv.sx/enx/video/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.ntvbd.com/livetv')"> 
+                <img src="image/tv.jpg" alt="Ntv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Ntv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.ntvbd.com/livetv')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.somoynews.tv/tv')">
+                <img src="image/tv.jpg" alt="Somoy News Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Somoy News Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.somoynews.tv/tv')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.jagobd.com/jamunatv')">
+                <img src="image/tv.jpg" alt="Jamuna Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Jamuna Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.jagobd.com/jamunatv')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.bvnews24.com/live/#google_vignette')">
+                <img src="image/tv.jpg" alt="Bangla Vision Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Bangla Vision Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.bvnews24.com/live/#google_vignette')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.ekushey-tv.com/etvlive/')">
+                <img src="image/tv.jpg" alt="Ekushey Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Ekushey Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.ekushey-tv.com/etvlive/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://maasranga.tv/live-streaming/')">
+                <img src="image/tv.jpg" alt="Maasranga Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Maasranga Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://maasranga.tv/live-streaming/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://mytvbd.tv/')">
+                <img src="image/tv.jpg" alt="My Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch My Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://mytvbd.tv/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.btvlive.gov.bd/channel/BTV')">
+                <img src="image/tv.jpg" alt="Bangladesh Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Bangladesh Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.btvlive.gov.bd/channel/BTV')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://dbcnews.tv/live')">
+                <img src="image/tv.jpg" alt="BDC Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch DBC News Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://dbcnews.tv/live')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://ekhon.tv/watch/live')">
+                <img src="image/tv.jpg" alt="Ekhon Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Ekhon News Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://ekhon.tv/watch/live')">Preview</button>
+                    </div>
+                </div>
+            </div>
+             <div class="video-card" onclick="previewVideo('https://www.distro.tv/')">
+                <img src="image/tv.jpg" alt="Distro Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title"> Watch Distro Live Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.distro.tv/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card" onclick="previewVideo('https://www.yupptv.com/fast-tv')">
+                <img src="image/tv.jpg" alt="Yupp Tv">
+                <div class="video-overlay">
+                    <h3 class="video-title">Watch Yupp Live Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Watch Live')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://www.yupptv.com/fast-tv')">Preview</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card" onclick="previewVideo('https://myco.io/')">
+                <img src="image/tv.jpg" alt="Video thumbnail">
+                <div class="video-overlay">
+                    <h3 class="video-title">Watch Myco Live Tv</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Video 2')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('https://myco.io/')">Preview</button>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card" onclick="previewVideo('image/fan.mp4')">
+                <img src="image/image 1.jpg" alt="Video thumbnail">
+                <div class="video-overlay">
+                    <h3 class="video-title">Watch</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Video 2')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('image/fan.mp4')">Preview</button>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Your Video Preview Here!</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <iframe id="videoPlayer" class="video-player" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- Footer with Sound Animation -->
+    <footer id="contact">
+        <div class="footer-content">
+             <div class="footer">
+            <p>&copy; KIPTA. All Rights Reserved. <i class="fas fa-heart"></i></p><br>
+       
+            <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 0.1rem;">
+                <a href="#" style="color: var(--text-secondary); font-size: 1.5rem; transition: color 0.3s;">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="#" style="color: var(--text-secondary); font-size: 1.5rem; transition: color 0.3s;">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" style="color: var(--text-secondary); font-size: 1.5rem; transition: color 0.3s;">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://wa.me/8801912874023" style="color: var(--text-secondary); font-size: 1.5rem; transition: color 0.3s;" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+         </div>
+    </footer>
+
+    <script>
+        let videoCount = 2;
+
+        function addVideo() {
+            const urlInput = document.getElementById('videoUrl');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showNotification('Please enter a video URL');
+                return;
+            }
+
+            const videoGrid = document.getElementById('videoGrid');
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.onclick = () => previewVideo(url);
+            
+            videoCard.innerHTML = `
+                <img src="https://picsum.photos/seed/video${++videoCount}/400/200.jpg" alt="Video thumbnail">
+                <div class="video-overlay">
+                    <h3 class="video-title">Custom Video ${videoCount}</h3>
+                    <div class="video-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); shareVideo('Custom Video ${videoCount}')">Share</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); previewVideo('${url}')">Preview</button>
+                    </div>
+                </div>
+            `;
+            
+            videoGrid.appendChild(videoCard);
+            urlInput.value = '';
+            showNotification('Video added successfully!');
+        }
+
+        function previewVideo(url) {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            const title = document.getElementById('modalTitle');
+            
+            // Convert YouTube URL to embed format
+            let embedUrl = url;
+            if (url.includes('youtube.com/watch?v=')) {
+                const videoId = url.split('v=')[1].split('&')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            } else if (url.includes('youtu.be/')) {
+                const videoId = url.split('youtu.be/')[1];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+            
+            player.src = embedUrl;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            
+            modal.style.display = 'none';
+            player.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function shareVideo(title) {
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: `Check out this amazing video: ${title}`,
+                    url: window.location.href
+                }).catch(() => {
+                    copyToShare(title);
+                });
+            } else {
+                copyToShare(title);
+            }
+        }
+
+        function copyToShare(title) {
+            const shareText = `Check out this amazing video: ${title} - ${window.location.href}`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                showNotification('Share link copied to clipboard!');
+            }).catch(() => {
+                showNotification('Unable to share. Please copy the URL manually.');
+            });
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 2000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('videoModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Allow Enter key to add video
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addVideo();
+            }
+        });
+    </script>
+</body>
+</html>
